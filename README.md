@@ -50,3 +50,45 @@ python etl_process.py events.csv
 ## Pitfalls
 
 - In case you will see `Killed` during running app inside docker  - you might need to increase allowed memory for your docker
+
+## Key concepts
+
+I introduced a few concepts for the application
+
+### Jobs
+
+Main classes(`ExtractJob`, `TransformJob`, `LoadJob`) responsible for creating ETL pipeline
+
+### Data cleaners
+
+Responsible for cleaning data based on requirements, however at some points we need to keep invalid data for analysis therefore `InvalidFieldsCleaner` marks invalid data like `_is_valid=False` which late we could use for extracting valid and invalid data from dataframe
+
+
+### DataConverters
+
+Converts data from one type to another(`DateTimeConverter`, `DateConverter`)
+
+### Data loaders
+
+Responsible for loading data to some storage. In our case we have tow data loaders: 
+- `ValidDataLoader` - loading valid data to a storage
+- `InvalidDataLoader` - loading invalid data to a storage
+
+
+## Configuration
+
+```json
+{
+  "psql_db": { // database config
+  ...
+  },
+  "data_import": { // config to be used for import
+    "csv_separator": ",",
+    "destination_table": "events.data",
+    "invalid_data_table": "events.invalid_data",
+    "output_path": "/tmp",
+    "fields": { // configuration for fields that we want to use during the ETL process
+    }
+  }
+}    
+```

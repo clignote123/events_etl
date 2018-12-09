@@ -18,9 +18,6 @@ class DateTimeConverter:
             df(pd.DataFrame): pandas DataFrame
             datetime_field(str): field in DataFrame to convert
             format(str): format of datetime filed
-
-        Returns:
-            pd.DataFrame: DataFrame with converted fields
         """
         df[datetime_field] = pd.to_datetime(
             df[datetime_field],
@@ -28,8 +25,6 @@ class DateTimeConverter:
             cache=True,
             errors='coerce',
         )
-
-        return df
 
 
 class DateConverter:
@@ -41,14 +36,9 @@ class DateConverter:
             df(pd.DataFrame): pandas DataFrame
             datetime_field(str): field in DataFrame to convert
             format(str): format of datetime filed
-
-        Returns:
-            pd.DataFrame: DataFrame with converted fields
         """
-        df = DateTimeConverter.convert(df, datetime_field, format)
+        DateTimeConverter.convert(df, datetime_field, format)
         df[datetime_field] = df[datetime_field].dt.date
-
-        return df
 
 
 class AbstractDataCleaner(ABC):
@@ -67,9 +57,6 @@ class AbstractDataCleaner(ABC):
 
         Args:
             df(pd.DataFrame): pandas DataFrame
-
-        Returns:
-            pd.DataFrame
         """
         pass
 
@@ -78,7 +65,7 @@ class DuplicatesDataCleaner(AbstractDataCleaner):
     """Drop duplicates in DataFrame
     """
 
-    def clean(self, df):
+    def clean(self, df: pd.DataFrame):
         df.drop_duplicates(inplace=True)
 
 
@@ -86,23 +73,21 @@ class InvalidFieldsCleaner(AbstractDataCleaner):
     """Check invalid fields
     """
 
-    def clean(self, df):
+    def clean(self, df: pd.DataFrame):
         for field_name, field_config in self.config.get('fields').items():
             if field_config.get('type') == "datetime":
-                df = DateTimeConverter.convert(
+                DateTimeConverter.convert(
                     df, field_name, field_config.get('format')
                 )
 
             if field_config.get('type') == "date":
-                df = DateConverter.convert(
+                DateConverter.convert(
                     df, field_name, field_config.get('format')
                 )
 
             if field_config.get('not_null'):
                 df.loc[df[field_name].isna(), EtlProcess.IS_VALID_FIELD] = False
-
-                # return df
-
+            gc.collect()
 
 class AbstractStorage(ABC):
     """Abstract data storage
@@ -299,7 +284,6 @@ class ExtractJob:
 
         Returns:
             df(pd.DataFrame): data loaded to pandas DataFrame
-
         """
         file_path = '{}/{}'.format(self.INPUT_FILE_DIR, file_name)
 
@@ -338,9 +322,7 @@ class TransformJob:
 
         for cleaner in self._cleaners:
             cleaner.clean(df)
-
-        return df
-
+            gc.collect()
 
 class LoadJob:
     """ETL job to load a data
@@ -390,7 +372,7 @@ def run():
     df = extract_job.run(file_name)
 
     transform_job = TransformJob(etl_config)
-    df = transform_job.run(df=df)
+    transform_job.run(df=df)
 
     load_job = LoadJob(etl_config)
     load_job.run(df)
