@@ -1,0 +1,66 @@
+{
+  "psql_db": {
+    "host": "dwh_database",
+    "user": "app_user",
+    "pwd": "app_db_pwd",
+    "port": 5432,
+    "dbname": "events_app"
+  },
+  "data_import": {
+    "csv_separator": ",",
+    "destination_table": "events.data",
+    "invalid_data_table": "events.invalid_data",
+    "output_path": "/tmp",
+    "fields": {
+      "dim_date_id": {
+        "type": "date",
+        "format": "%Y-%m-%d",
+        "not_null": true
+      },
+      "user_id": {
+        "not_null": true
+      },
+      "user_access_type": {},
+      "event_type": {},
+      "category": {},
+      "depth": {},
+      "action": {},
+      "content": {},
+      "screen_url": {},
+      "screenurl_params": {},
+      "event_timestamp": {
+        "type": "datetime",
+        "format": "%Y-%m-%d %H:%M:%S",
+        "not_null": true
+      },
+      "arrival_timestamp": {
+        "type": "datetime",
+        "format": "%Y-%m-%d %H:%M:%S",
+        "not_null": true
+      },
+      "bk_session_id": {},
+      "bk_funnel_id": {},
+      "application_version_code": {},
+      "application_version_name": {},
+      "client_cognito_id": {},
+      "client_id": {},
+      "device_locale_code": {},
+      "device_locale_country": {
+        "not_null": true
+      },
+      "device_locale_language": {},
+      "device_make": {},
+      "device_model": {},
+      "device_platform_name": {},
+      "device_platform_version": {},
+      "session_id": {
+        "not_null": true
+      },
+      "session_start_timestamp": {
+        "type": "datetime",
+        "format": "%Y-%m-%d %H:%M:%S",
+        "not_null": true
+      }
+    }
+  }
+}
